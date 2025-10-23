@@ -59,7 +59,7 @@ function preload() {
 }
 function setup() {
 	createCanvas(CANVAS_W, CANVAS_H);
-	frameRate(60);
+	frameRate(120);
 	time = millis();
 	rectMode(CENTER);
 
