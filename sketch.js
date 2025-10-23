@@ -2,8 +2,8 @@ let time;
 let frameCountBuffer = 0;
 let fps = 0;
 
-const CANVAS_W = 896;
-const CANVAS_H = 1152;
+const CANVAS_W = 768;
+const CANVAS_H = 1024;
 const GRID_SIZE = 64;
 
 const BUTTON_OFFSET = 8;
