@@ -2,8 +2,8 @@ let time;
 let frameCountBuffer = 0;
 let fps = 0;
 
-const CANVAS_W = 768;
-const CANVAS_H = 1024;
+const CANVAS_W = 640;
+const CANVAS_H = 832;
 const GRID_SIZE = 64;
 
 const BUTTON_OFFSET = 8;
@@ -44,9 +44,9 @@ const SPEED_AT = 0.98;
 let xPos, zPos;
 let prevXPos, prevZPos, prevInt;
 const POS_EF = 0.95;
-const CX = GRID_SIZE*7.5;
-const CY = GRID_SIZE*7;
-const SP_EF = 0.00001;
+const CX = GRID_SIZE*5;
+const CY = GRID_SIZE*5;
+const SP_EF = 0.00005;
 
 let ball;
 
@@ -85,7 +85,7 @@ function setup() {
 	ball = {};
 	ball.x = CX;
 	ball.y = CY;
-	ball.size = 50;
+	ball.size = 40;
 }
 function buttonInit(text, w, h, x, y) {
 	let button = createButton(text);
