@@ -6,12 +6,12 @@ const CANVAS_W = 640;
 const CANVAS_H = 832;
 const GRID_SIZE = 64;
 
-const BUTTON_OFFSET = 8;
+const BUTTON_OFFSET = 0;
 const BUTTON_W = GRID_SIZE*3;
 const BUTTON_H = GRID_SIZE*2;
 const BUTTON_X = GRID_SIZE*1;
-const BUTTON_Y = CANVAS_H-GRID_SIZE*3;
-const BUTTON_M = 24;
+const BUTTON_Y = CANVAS_H-GRID_SIZE*2;
+const BUTTON_M = GRID_SIZE*0.5;
 
 // for M5
 const NAME_PRE = 'UART';
@@ -49,6 +49,7 @@ const CY = GRID_SIZE*5;
 const SP_EF = 0.00005;
 
 let ball;
+let ballGraphics;
 
 const DEBUG = true;
 const DEBUG_VIEW_X = 20;
@@ -86,6 +87,9 @@ function setup() {
 	ball.x = CX;
 	ball.y = CY;
 	ball.size = 40;
+	ballGraphics = createGraphics(CANVAS_W, CANVAS_H);
+	ballGraphics.clear();
+	ballGraphics.background(0);
 }
 function buttonInit(text, w, h, x, y) {
 	let button = createButton(text);
@@ -123,16 +127,6 @@ function draw() {
 			line(i*GRID_SIZE, 0, i*GRID_SIZE, CANVAS_H);
 		}
 	}
-	fill(255);
-	textSize(16);
-	stroke(255);
-	strokeWeight(1);
-	let debugY = DEBUG_VIEW_Y;
-	text('fps:'+fps, DEBUG_VIEW_X, debugY);
-	debugY += DEBUG_VIEW_H;
-	text('dataRate'+':'+dataRate, DEBUG_VIEW_X, debugY);
-	debugY += DEBUG_VIEW_H;
-	text('loss:'+lossCount, DEBUG_VIEW_X, debugY);
 
 	if (logFlag){
 		for (let i=0; i<8; i++){
@@ -166,12 +160,28 @@ function draw() {
 		ball.x = xPos + (prevXPos-xPos)*(dataTime-current)/prevInt;
 		ball.y = zPos + (prevZPos-zPos)*(dataTime-current)/prevInt;
 	}
-	fill(255);
-	noStroke();
-	circle(ball.x, ball.y, ball.size);
+	ballGraphics.background(0, 0, 0, 8);
+	ballGraphics.fill(255);
+	ballGraphics.noStroke();
+	ballGraphics.circle(ball.x, ball.y, ball.size);
+	image(ballGraphics, 0, 0);
+//	fill(255);
+//	noStroke();
+//	circle(ball.x, ball.y, ball.size);
 	stroke(255);
 	strokeWeight(3);
 	line(xPos, zPos, CX, CY);
+
+	fill(255);
+	textSize(16);
+	stroke(255);
+	strokeWeight(1);
+	let debugY = DEBUG_VIEW_Y;
+	text('fps:'+fps, DEBUG_VIEW_X, debugY);
+	debugY += DEBUG_VIEW_H;
+	text('dataRate'+':'+dataRate, DEBUG_VIEW_X, debugY);
+	debugY += DEBUG_VIEW_H;
+	text('loss:'+lossCount, DEBUG_VIEW_X, debugY);
 }
 function writeBLE(val) {
 	if (isConnected){

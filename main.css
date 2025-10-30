@@ -1,0 +1,7 @@
+html {
+	touch-action: manipulation;
+}
+html, body {
+	padding: 0;
+	margin: 0;
+}
