@@ -37,12 +37,13 @@ let lossCount = 0;
 let outputBuf = [];
 let outputIndex;
 let dataTime;
+let prevSenseTime;
 
 const ACC_EF = 0.0001;
-let xSpeed, zSpeed;
+let xSpeed, ySpeed;
 const SPEED_AT = 0.98;
-let xPos, zPos;
-let prevXPos, prevZPos, prevInt;
+let xPos, yPos;
+let prevXPos, prevYPos, prevInt;
 const POS_EF = 0.95;
 const CX = GRID_SIZE*5;
 const CY = GRID_SIZE*5;
@@ -73,9 +74,9 @@ function setup() {
 	dataRate = 0;
 	drawIndex = 0;
 	xPos = CX;
-	zPos = CY;
+	yPos = CY;
 	xSpeed = 0;
-	zSpeed = 0;
+	ySpeed = 0;
 	logFlag = false;
 
 	startButton = buttonInit('start', BUTTON_W, BUTTON_H, BUTTON_X, BUTTON_Y);
@@ -137,17 +138,17 @@ function draw() {
 				break;
 			}
 			prevXPos = xPos;
-			prevZPos = zPos;
-			prevInt = dataBuf[drawIndex][val.length-1];
+			prevYPos = yPos;
+			prevInt = dataBuf[drawIndex][val.length];
 			dataTime += prevInt;
 			xPos += xSpeed;
-			zPos += zSpeed;
+			yPos += ySpeed;
 			xSpeed *= SPEED_AT;
-			zSpeed *= SPEED_AT;
-			const f = SP_EF * dist(xPos, zPos, CX, CY);
-			xSpeed += dataBuf[drawIndex][2]*ACC_EF + f*(CX-xPos);
-			zSpeed += dataBuf[drawIndex][4]*ACC_EF + f*(CY-zPos);
-			dataBuf[drawIndex][val.length] = xPos;
+			ySpeed *= SPEED_AT;
+			const f = SP_EF * dist(xPos, yPos, CX, CY);
+			xSpeed += dataBuf[drawIndex][1]*ACC_EF + f*(CX-xPos);
+			ySpeed += dataBuf[drawIndex][2]*ACC_EF + f*(CY-yPos);
+			dataBuf[drawIndex][val.length] = yPos-CY;
 			drawIndex++;
 			if (drawIndex>=DATA_SIZE){
 				drawIndex = 0;
@@ -158,7 +159,7 @@ function draw() {
 			dataTime = current+20;
 		}
 		ball.x = xPos + (prevXPos-xPos)*(dataTime-current)/prevInt;
-		ball.y = zPos + (prevZPos-zPos)*(dataTime-current)/prevInt;
+		ball.y = yPos + (prevYPos-yPos)*(dataTime-current)/prevInt;
 	}
 	ballGraphics.background(0, 0, 0, 8);
 	ballGraphics.fill(255);
@@ -170,7 +171,7 @@ function draw() {
 //	circle(ball.x, ball.y, ball.size);
 	stroke(255);
 	strokeWeight(3);
-	line(xPos, zPos, CX, CY);
+	line(xPos, yPos, CX, CY);
 
 	fill(255);
 	textSize(16);
@@ -224,7 +225,6 @@ async function connectToBle() {
 	function onTxCharacteristicValueChanged(event) {
 		dataCount++;
 		let receivedData = [];
-//		let id = event.target.value.getUint16(0, true);
 		for (let i=0; i<2; i++){
 			receivedData[i] = event.target.value.getUint16(i*2, true);
 		}
@@ -232,17 +232,16 @@ async function connectToBle() {
 			receivedData[i] = event.target.value.getInt16(i*2, false);
 		}
 		let id = receivedData[0];
-		let senseInterval = (receivedData[1]-val[1])/10;
-		if (receivedData[1]<val[1]){
-			senseInterval = (50000+receivedData[1]-val[1])/10;
+		let senseInterval = (receivedData[1]-prevSenseTime)/10;
+		if (receivedData[1]<prevSenseTime){
+			senseInterval = (50000+receivedData[1]-prevSenseTime)/10;
 		}
-//		console.log(id, receivedData);
-		for (let i=0; i<receivedData.length; i++){
-			val[i] = receivedData[i];
+		prevSenseTime = receivedData[1];
+		for (let i=0; i<receivedData.length-2; i++){
+			val[i] = receivedData[i+2];
 			dataBuf[dataIndex][i] = val[i];
 		}
-		val[receivedData.length] = senseInterval;
-		dataBuf[dataIndex][receivedData.length] = senseInterval;
+		dataBuf[dataIndex][val.length] = senseInterval;
 		if (idCheck!=id){
 			idCheck = id+1;
 			lossCount++;
